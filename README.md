@@ -7,3 +7,4 @@
  # Current status:
  'simsRO.R' generates the simulated data. 
  
+ 'helperfuncs.R' contains helper functions. 

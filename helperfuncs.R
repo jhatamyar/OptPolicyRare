@@ -28,6 +28,35 @@ dr_scores <- function(W, Y, Y.hat, W.hat, tau.hat){
   return(scores = scores.raw)
 }
 
+#'========================================
+#'
+#'This function calculates the DR-scores from a BART model.  
+#' We cannot marginalize over treatment to get Y.hat so use the separate estimates for the 
+#' conditional outcomes then subtract to get overall score. 
+#' 
+#' Code adapted from 'double_robust_scores' in the policytree package. 
+#' 
+
+get_scores_BART <- function(W, W.hat, Y, Y.hat.0, Y.hat.1) {
+  mu.matrix <- cbind("control" = Y.hat.0, "treated" = Y.hat.1)
+  
+  W.hat.matrix <- cbind(1 - W.hat, W.hat) # [control, treated]
+  n.obs <- nrow(W.hat.matrix)
+  observed.treatment.idx <- cbind(1:n.obs, W + 1)
+  
+  ## initialize values 
+  YY <- matrix(0, n.obs, 2)
+  IPW <- matrix(0, n.obs, 2)
+  
+  YY[observed.treatment.idx] <- Y
+  IPW[observed.treatment.idx] <- 1 / W.hat.matrix[observed.treatment.idx]
+  Gamma.matrix <- (YY - mu.matrix) * IPW + mu.matrix
+  
+  scores.raw <- Gamma.matrix[,2] - Gamma.matrix[,1]
+  return(scores = scores.raw)
+}
+
+
 
 #'========================================
 #'

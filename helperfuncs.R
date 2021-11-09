@@ -20,7 +20,7 @@
 #' @param W.hat estimated propensity score 
 #' @param tau.hat Estimated CATE
 #'
-dr_scores <- function(W, Y, Y.hat, W.hat, tau.hat){
+dr_scores <- function(W, W.hat, Y, Y.hat, tau.hat){
   debiasing.weights    <- (W - W.hat) / (W.hat * (1 - W.hat))
   Y.residual           <- Y - (Y.hat + tau.hat * (W - W.hat))
   scores.raw            <- tau.hat + debiasing.weights * Y.residual
@@ -28,18 +28,10 @@ dr_scores <- function(W, Y, Y.hat, W.hat, tau.hat){
   return(scores = scores.raw)
 }
 
-#'========================================
-#'
-#'This function calculates the DR-scores from a BART model.  
-#' We cannot marginalize over treatment to get Y.hat so use the separate estimates for the 
-#' conditional outcomes then subtract to get overall score. 
-#' 
-#' Code adapted from 'double_robust_scores' in the policytree package. 
-#' 
-
 get_scores_BART <- function(W, W.hat, Y, Y.hat.0, Y.hat.1) {
   mu.matrix <- cbind("control" = Y.hat.0, "treated" = Y.hat.1)
   
+  ## this is taken from double_robust_scores
   W.hat.matrix <- cbind(1 - W.hat, W.hat) # [control, treated]
   n.obs <- nrow(W.hat.matrix)
   observed.treatment.idx <- cbind(1:n.obs, W + 1)
@@ -57,7 +49,6 @@ get_scores_BART <- function(W, W.hat, Y, Y.hat.0, Y.hat.1) {
 }
 
 
-
 #'========================================
 #'
 #'This function calculates the advantage of a policy
@@ -73,4 +64,11 @@ get_advantage = function(policy, scores) {
   c(point.estimate=mu, std.err=se)
 }
 
+
+get_policy = function(scores, X=X) {
+  tree = policy_tree(X, cbind(scores, -scores))
+  policy = predict(tree, X) - 1
+  return(policy)
+  
+}
 

@@ -65,10 +65,13 @@ get_advantage = function(policy, scores) {
 }
 
 
-get_policy = function(scores, X=X) {
-  tree = policy_tree(X, cbind(scores, -scores))
+get_policy = function(scores, X=X, depth = 2) {
+  tree = policy_tree(X, cbind(scores, -scores), depth)
   policy = predict(tree, X) - 1
   return(policy)
   
 }
+
+
+
 

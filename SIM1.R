@@ -29,7 +29,7 @@ registerDoParallel(cl)
 #------------------------------------------------------------------------
 # setting 1: not rare prevalence, moderate overlap, setting 1, n = 800
 
-nsim = 100
+nsim = 40
 #start_time <- Sys.time()
 
 r1 <- foreach(t = 1:nsim, .combine='cbind', .inorder=FALSE, .packages=vec.pac) %dopar% { 

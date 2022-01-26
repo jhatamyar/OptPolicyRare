@@ -35,6 +35,7 @@ nsim = 40
 r1 <- foreach(t = 1:nsim, .combine='cbind', .inorder=FALSE, .packages=vec.pac) %dopar% { 
   
   # set seed to t 
+  set.seed(1000 + t)
   
   ## generate data (change n to fewer obs for testing)
   data <- data_make_het(prevalence = "normal")
